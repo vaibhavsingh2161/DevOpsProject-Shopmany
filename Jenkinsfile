@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Set environment variables needed for the build
         DOCKER_NETWORK = "gaworkshop"
         DOCKER_IMAGE_TAG = "latest"
     }
@@ -15,20 +14,14 @@ pipeline {
             }
         }
 
-        stage('Build & Push Docker Images') {
+        stage('Build Docker Images') {
             steps {
                 script {
-                    bat 'cd DevopsProject-Shopmany'
-                    // Build each Docker image and tag them
-                    bat 'docker build -t shopmany_item:%DOCKER_IMAGE_TAG% ./items'
-                    bat 'docker build -t shopmany_pay:%DOCKER_IMAGE_TAG% ./pay'
-                    bat 'docker build -t shopmany_frontend:%DOCKER_IMAGE_TAG% ./frontend'
-
-                    // Push the images to a Docker registry if needed
-                    // Uncomment the lines below if you are using a Docker registry
-                    // bat 'docker login -u <username> -p <password>'
-                    // bat 'docker tag shopmany_item:%DOCKER_IMAGE_TAG% <registry>/shopmany_item:%DOCKER_IMAGE_TAG%'
-                    // bat 'docker push <registry>/shopmany_item:%DOCKER_IMAGE_TAG%'
+                    // Move into each directory and build the Docker image
+                    bat 'cd items && docker build -t shopmany_item:%DOCKER_IMAGE_TAG% .'
+                    bat 'cd ../pay && docker build -t shopmany_pay:%DOCKER_IMAGE_TAG% .'
+                    bat 'cd ../frontend && docker build -t shopmany_frontend:%DOCKER_IMAGE_TAG% .'
+                    bat 'cd ../discount && docker build -t shopmany_discount:%DOCKER_IMAGE_TAG% .'
                 }
             }
         }
@@ -36,7 +29,7 @@ pipeline {
         stage('Create Docker Network') {
             steps {
                 script {
-                    // Check if the network exists, if not create it
+                    // Check if the network exists; if not, create it
                     bat 'docker network inspect %DOCKER_NETWORK% || docker network create %DOCKER_NETWORK%'
                 }
             }
