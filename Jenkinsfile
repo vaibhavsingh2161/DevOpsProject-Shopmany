@@ -26,7 +26,6 @@ pipeline {
             steps {
                 script {
                     // Use docker-compose to bring up all services from the docker-compose.yml file
-                    bat 'docker-compose down'    // Stop any running services (clean up)
                     bat 'docker-compose up -d'   // Start services in detached mode
                 }
             }
