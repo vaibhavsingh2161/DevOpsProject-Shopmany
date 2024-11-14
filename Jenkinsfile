@@ -18,6 +18,7 @@ pipeline {
         stage('Build & Push Docker Images') {
             steps {
                 script {
+                    bat 'cd DevopsProject-Shopmany'
                     // Build each Docker image and tag them
                     bat 'docker build -t shopmany_item:%DOCKER_IMAGE_TAG% ./items'
                     bat 'docker build -t shopmany_pay:%DOCKER_IMAGE_TAG% ./pay'
