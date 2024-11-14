@@ -18,6 +18,7 @@ pipeline {
             steps {
                 script {
                     // Move into each directory and build the Docker image
+                    bat 'cd DevopsProject-Shopmany'
                     bat 'cd items && docker build -t shopmany_item:%DOCKER_IMAGE_TAG% .'
                     bat 'cd ../pay && docker build -t shopmany_pay:%DOCKER_IMAGE_TAG% .'
                     bat 'cd ../frontend && docker build -t shopmany_frontend:%DOCKER_IMAGE_TAG% .'
