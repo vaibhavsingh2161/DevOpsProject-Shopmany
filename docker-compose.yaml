@@ -18,7 +18,7 @@ services:
 
   itemdb:
     image: mysql:5.7.25
-    platform: linux/amd64  # Specify platform
+    # platform: linux/amd64  # Specify platform
     restart: always
     environment:
       MYSQL_DATABASE: 'shopmany'
@@ -36,7 +36,7 @@ services:
   # Discount service that manages item discounts
   discount:
     image: node:10.15.3-stretch
-    platform: linux/amd64  # Specify platform
+    # platform: linux/amd64  # Specify platform
     working_dir: /usr/src/app
     volumes:
       - ./discount:/usr/src/app
@@ -51,7 +51,7 @@ services:
 
   discountdb:
     image: mongo:4.0.6-xenial
-    platform: linux/amd64  # Specify platform
+    # platform: linux/amd64  # Specify platform
     restart: always
     environment:
       MONGO_INITDB_DATABASE: "shopmany"
@@ -77,7 +77,7 @@ services:
 
   paydb:
     image: mysql:5.7.25
-    platform: linux/amd64  # Specify platform
+    # platform: linux/amd64  # Specify platform
     restart: always
     environment:
       MYSQL_DATABASE: 'pay'
@@ -95,7 +95,7 @@ services:
   # Frontend UI service
   frontend:
     image: golang:1.14.0-stretch
-    platform: linux/amd64  # Specify platform
+    # platform: linux/amd64  # Specify platform
     command: ["go", "run", "-mod", "vendor", "./main.go"]
     ports:
       - '3000:3000'
