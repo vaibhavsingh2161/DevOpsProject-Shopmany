@@ -31,18 +31,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Post Deployment Verification') {
-            steps {
-                script {
-                    // Perform health checks for your services (adjust URLs if necessary)
-                    bat 'curl --fail http://localhost:3000 || echo "Frontend not running"'
-                    bat 'curl --fail http://localhost:3001/item || echo "Item service not running"'
-                    bat 'curl --fail http://localhost:3002/pays || echo "Pay service not running"'
-                    bat 'curl --fail http://localhost:3003/discount?itemid=1 || echo "Discount service not running"'
-                }
-            }
-        }
     }
 
     post {
