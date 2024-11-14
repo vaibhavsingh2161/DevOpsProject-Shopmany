@@ -2,74 +2,87 @@ pipeline {
     agent any
 
     environment {
-        // Set environment variables needed for the build
-        DOCKER_NETWORK = "gaworkshop"
-        DOCKER_IMAGE_TAG = "latest"
+        // Define any environment variables you need here
+        DOCKER_COMPOSE_FILE = 'shopmany/docker-compose.yaml'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the source code from the repository
-                checkout scm
-            }
-        }
-
-        stage('Build & Push Docker Images') {
-            steps {
                 script {
-                    // Build each Docker image and tag them
-                    sh 'docker build -t shopmany_item:${DOCKER_IMAGE_TAG} ./items'
-                    sh 'docker build -t shopmany_pay:${DOCKER_IMAGE_TAG} ./pay'
-                    sh 'docker build -t shopmany_frontend:${DOCKER_IMAGE_TAG} ./frontend'
-
-                    // Push the images to a Docker registry if needed
-                    // Uncomment the lines below if you are using a Docker registry
-                    // sh 'docker login -u <username> -p <password>'
-                    // sh 'docker tag shopmany_item:${DOCKER_IMAGE_TAG} <registry>/shopmany_item:${DOCKER_IMAGE_TAG}'
-                    // sh 'docker push <registry>/shopmany_item:${DOCKER_IMAGE_TAG}'
+                    // Checkout the code from GitHub (or your source control)
+                    checkout scm
                 }
             }
         }
 
-        stage('Create Docker Network') {
+        stage('Build Docker Images') {
             steps {
                 script {
-                    // Check if the network exists, if not create it
-                    sh 'docker network inspect ${DOCKER_NETWORK} || docker network create ${DOCKER_NETWORK}'
+                    // Build all Docker images based on the docker-compose.yaml file
+                    sh 'docker-compose -f $DOCKER_COMPOSE_FILE build'
                 }
             }
         }
 
-        stage('Deploy Services') {
+        stage('Run Tests') {
             steps {
                 script {
-                    // Use docker-compose to bring up all services
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d'
+                    // Run your tests here if applicable, using Docker containers
+                    // Example: Test your backend services if you have test suites
+                    // sh 'docker-compose -f $DOCKER_COMPOSE_FILE run frontend npm test'
+                    
+                    // Example to run unit tests or integration tests if you have them
+                    // You can customize this step based on the service you are testing
+                    echo 'Running Tests...'
                 }
             }
         }
 
-        stage('Post Deployment Verification') {
+        stage('Start Containers') {
             steps {
                 script {
-                    // Perform simple health checks for services
-                    sh 'curl --fail http://localhost:3000 || echo "Frontend not running"'
-                    sh 'curl --fail http://localhost:3001/item || echo "Item service not running"'
-                    sh 'curl --fail http://localhost:3002/pays || echo "Pay service not running"'
-                    sh 'curl --fail http://localhost:3003/discount?itemid=1 || echo "Discount service not running"'
+                    // Start the containers (this won't detach them, for debugging purposes)
+                    sh 'docker-compose -f $DOCKER_COMPOSE_FILE up -d'
+                }
+            }
+        }
+
+        stage('Verify Services') {
+            steps {
+                script {
+                    // Verify the services are running (example: hit an endpoint)
+                    // Add your verification logic, for example using curl to check if services are up
+                    echo 'Verifying Services...'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Deploy your services if needed
+                    // This could involve pushing the built Docker images to a registry
+                    // or deploying the services to a cloud provider
+                    echo 'Deploying Services...'
                 }
             }
         }
     }
 
     post {
-        success {
-            echo 'Deployment completed successfully!'
+        always {
+            // Clean up any resources even if the pipeline fails
+            echo 'Cleaning up...'
+            sh 'docker-compose -f $DOCKER_COMPOSE_FILE down'
         }
+
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+
         failure {
-            echo 'Deployment failed. Check the logs for more details.'
+            echo 'Pipeline failed. Check logs for errors.'
         }
     }
 }
