@@ -2,15 +2,16 @@ pipeline {
     agent any
 
     environment {
-        // Define any environment variables you need here
+        // Define environment variables for docker-compose file location and binary
         DOCKER_COMPOSE_FILE = 'docker-compose.yaml'
+        DOCKER_COMPOSE = "/usr/local/bin/docker-compose"  // Path to Docker Compose
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    // Checkout the code from GitHub (or your source control)
+                    // Checkout the code from the source control (GitHub)
                     checkout scm
                 }
             }
@@ -20,7 +21,8 @@ pipeline {
             steps {
                 script {
                     // Build all Docker images based on the docker-compose.yaml file
-                    sh 'docker-compose -f $DOCKER_COMPOSE_FILE build'
+                    echo "Building Docker images..."
+                    sh '"$DOCKER_COMPOSE" -f $DOCKER_COMPOSE_FILE build'
                 }
             }
         }
@@ -30,10 +32,7 @@ pipeline {
                 script {
                     // Run your tests here if applicable, using Docker containers
                     // Example: Test your backend services if you have test suites
-                    // sh 'docker-compose -f $DOCKER_COMPOSE_FILE run frontend npm test'
-                    
-                    // Example to run unit tests or integration tests if you have them
-                    // You can customize this step based on the service you are testing
+                    // sh '"$DOCKER_COMPOSE" -f $DOCKER_COMPOSE_FILE run frontend npm test'
                     echo 'Running Tests...'
                 }
             }
@@ -42,8 +41,9 @@ pipeline {
         stage('Start Containers') {
             steps {
                 script {
-                    // Start the containers (this won't detach them, for debugging purposes)
-                    sh 'docker-compose -f $DOCKER_COMPOSE_FILE up -d'
+                    // Start the containers (detached mode)
+                    echo 'Starting Containers...'
+                    sh '"$DOCKER_COMPOSE" -f $DOCKER_COMPOSE_FILE up -d'
                 }
             }
         }
@@ -51,9 +51,10 @@ pipeline {
         stage('Verify Services') {
             steps {
                 script {
-                    // Verify the services are running (example: hit an endpoint)
-                    // Add your verification logic, for example using curl to check if services are up
+                    // Verify the services are running (example: check if an endpoint is up)
                     echo 'Verifying Services...'
+                    // Add logic here to verify services, for example, by using curl or another check
+                    // sh 'curl http://localhost:YOUR_PORT/health'
                 }
             }
         }
@@ -62,24 +63,24 @@ pipeline {
             steps {
                 script {
                     // Deploy your services if needed
-                    // This could involve pushing the built Docker images to a registry
-                    // or deploying the services to a cloud provider
                     echo 'Deploying Services...'
+                    // Example for pushing images or deploying to cloud services
+                    // sh 'docker push my_image'
+                    // or
+                    // sh 'kubectl apply -f deployment.yaml'
                 }
             }
         }
-
-        
     }
 
     post {
-
         success {
             echo 'Pipeline completed successfully!'
         }
 
         failure {
             echo 'Pipeline failed. Check logs for errors.'
+            // You can also add cleanup steps here if needed
         }
     }
 }
