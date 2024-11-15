@@ -1,26 +1,17 @@
 pipeline {
     agent any
-
+    
     environment {
+        // Set Docker path explicitly in Jenkins environment
         DOCKER_CLI_EXPERIMENTAL = 'enabled'
+        PATH = "/usr/local/bin:${env.PATH}"  // Add Docker path to PATH
         DOCKER_COMPOSE_FILE = 'docker-compose.yaml'
         DOCKER_COMPOSE = '/usr/local/bin/docker-compose'
         PROJECT_DIR = '/Users/vaibhavsingh/Documents/MProjects/shopmany'
     }
 
     stages {
-        stage('Check Jenkins Node Environment') {
-            steps {
-                script {
-                    echo "Checking Jenkins Node Environment..."
-                    // Check if Docker is installed and available
-                    sh 'docker --version'
-                    sh 'docker-compose --version'
-                }
-            }
-        }
-
-        stage('Checkout') {
+        stage('Checkout SCM') {
             steps {
                 script {
                     echo "Checking out source code..."
@@ -29,18 +20,23 @@ pipeline {
             }
         }
 
+        stage('Check Jenkins Node Environment') {
+            steps {
+                script {
+                    echo "Checking Jenkins Node Environment..."
+                    // Check if Docker and Docker Compose are available
+                    sh 'docker --version'
+                    sh 'docker-compose --version'
+                }
+            }
+        }
+
         stage('Build Docker Images') {
             steps {
                 script {
                     echo "Building Docker images..."
-                    dir("${PROJECT_DIR}") {
-                        try {
-                            sh "${DOCKER_COMPOSE} -f ${DOCKER_COMPOSE_FILE} build --no-cache"
-                        } catch (Exception e) {
-                            echo "Error during Docker image build: ${e.getMessage()}"
-                            currentBuild.result = 'FAILURE'
-                            throw e
-                        }
+                    dir("${PROJECT_DIR}") {  // Navigate to project directory
+                        sh "${DOCKER_COMPOSE} -f ${DOCKER_COMPOSE_FILE} build --no-cache"
                     }
                 }
             }
@@ -51,14 +47,8 @@ pipeline {
                 script {
                     echo 'Running Tests...'
                     dir("${PROJECT_DIR}") {
-                        try {
-                            // Example test command (replace with actual test commands)
-                            sh 'echo "Running tests completed successfully!"'
-                        } catch (Exception e) {
-                            echo "Error during tests: ${e.getMessage()}"
-                            currentBuild.result = 'FAILURE'
-                            throw e
-                        }
+                        // Example test command (replace with actual test commands)
+                        sh 'echo "Tests completed successfully"'
                     }
                 }
             }
@@ -69,13 +59,7 @@ pipeline {
                 script {
                     echo 'Starting Containers...'
                     dir("${PROJECT_DIR}") {
-                        try {
-                            sh "${DOCKER_COMPOSE} -f ${DOCKER_COMPOSE_FILE} up -d"
-                        } catch (Exception e) {
-                            echo "Error during container startup: ${e.getMessage()}"
-                            currentBuild.result = 'FAILURE'
-                            throw e
-                        }
+                        sh "${DOCKER_COMPOSE} -f ${DOCKER_COMPOSE_FILE} up -d"
                     }
                 }
             }
@@ -86,14 +70,9 @@ pipeline {
                 script {
                     echo 'Verifying Services...'
                     dir("${PROJECT_DIR}") {
-                        try {
-                            sh 'docker ps'
-                            echo 'Services verification completed successfully!'
-                        } catch (Exception e) {
-                            echo "Error during service verification: ${e.getMessage()}"
-                            currentBuild.result = 'FAILURE'
-                            throw e
-                        }
+                        // Example verification step (replace with actual commands)
+                        sh 'docker ps'
+                        echo 'Verification completed successfully!'
                     }
                 }
             }
@@ -123,11 +102,7 @@ pipeline {
             script {
                 echo 'Stopping and removing containers...'
                 dir("${PROJECT_DIR}") {
-                    try {
-                        sh "${DOCKER_COMPOSE} -f ${DOCKER_COMPOSE_FILE} down"
-                    } catch (Exception e) {
-                        echo "Error during cleanup: ${e.getMessage()}"
-                    }
+                    sh "${DOCKER_COMPOSE} -f ${DOCKER_COMPOSE_FILE} down"
                 }
             }
         }
