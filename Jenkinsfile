@@ -4,13 +4,15 @@ pipeline {
     environment {
         // Define environment variables for docker-compose file location and binary
         DOCKER_COMPOSE_FILE = 'docker-compose.yaml'
-        DOCKER_COMPOSE = "/user/local/bin/docker-compose"  // Path to Docker Compose
+        DOCKER_COMPOSE = "/usr/local/bin/docker-compose"  // Path to Docker Compose binary
+        PROJECT_DIR = '/Users/vaibhavsingh/Documents/MProjects/shopmany' // Project directory
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
+                    echo "Checking out source code..."
                     checkout scm
                 }
             }
@@ -20,8 +22,8 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker images..."
-                    dir('/Users/vaibhavsingh/Documents/MProjects/shopmany') {  // Navigate to project directory
-                        sh 'docker-compose -f $DOCKER_COMPOSE_FILE build --no-cache'  // Add --no-cache for a clean build
+                    dir("${PROJECT_DIR}") {  // Navigate to project directory
+                        sh "${DOCKER_COMPOSE} -f ${DOCKER_COMPOSE_FILE} build --no-cache"
                     }
                 }
             }
@@ -31,6 +33,10 @@ pipeline {
             steps {
                 script {
                     echo 'Running Tests...'
+                    dir("${PROJECT_DIR}") {
+                        // Example test command (replace with actual test commands)
+                        sh 'echo "Tests completed successfully"'
+                    }
                 }
             }
         }
@@ -39,8 +45,8 @@ pipeline {
             steps {
                 script {
                     echo 'Starting Containers...'
-                    dir('/Users/vaibhavsingh/Documents/MProjects/shopmany') {  // Navigate to project directory
-                        sh 'docker-compose -f $DOCKER_COMPOSE_FILE up -d'
+                    dir("${PROJECT_DIR}") {
+                        sh "${DOCKER_COMPOSE} -f ${DOCKER_COMPOSE_FILE} up -d"
                     }
                 }
             }
@@ -50,7 +56,11 @@ pipeline {
             steps {
                 script {
                     echo 'Verifying Services...'
-                    // Add verification steps here (e.g., curl to check service status)
+                    dir("${PROJECT_DIR}") {
+                        // Example verification step (replace with actual commands)
+                        sh 'docker ps'
+                        echo 'Verification completed successfully!'
+                    }
                 }
             }
         }
@@ -59,18 +69,29 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying Services...'
+                    // Add deployment steps here if applicable
                 }
             }
         }
     }
 
     post {
+        always {
+            echo 'Pipeline finished. Cleaning up...'
+        }
         success {
             echo 'Pipeline completed successfully!'
         }
-
         failure {
             echo 'Pipeline failed. Check logs for errors.'
+        }
+        cleanup {
+            script {
+                echo 'Stopping and removing containers...'
+                dir("${PROJECT_DIR}") {
+                    sh "${DOCKER_COMPOSE} -f ${DOCKER_COMPOSE_FILE} down"
+                }
+            }
         }
     }
 }
