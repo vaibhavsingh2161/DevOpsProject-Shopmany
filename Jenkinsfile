@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Define any environment variables you need here
-        DOCKER_COMPOSE_FILE = 'shopmany/docker-compose.yaml'
+        DOCKER_COMPOSE_FILE = 'docker-compose.yaml'
     }
 
     stages {
@@ -73,11 +73,6 @@ pipeline {
     }
 
     post {
-        always {
-            // Clean up any resources even if the pipeline fails
-            echo 'Cleaning up...'
-            sh 'docker-compose -f $DOCKER_COMPOSE_FILE down'
-        }
 
         success {
             echo 'Pipeline completed successfully!'
