@@ -11,7 +11,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Checkout the code from the source control (GitHub)
                     checkout scm
                 }
             }
@@ -20,9 +19,8 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    // Build all Docker images based on the docker-compose.yaml file
                     echo "Building Docker images..."
-                    sh '"$DOCKER_COMPOSE" -f $DOCKER_COMPOSE_FILE build'
+                    sh 'docker-compose -f $DOCKER_COMPOSE_FILE build --no-cache'  // Add --no-cache for a clean build
                 }
             }
         }
@@ -30,9 +28,6 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // Run your tests here if applicable, using Docker containers
-                    // Example: Test your backend services if you have test suites
-                    // sh '"$DOCKER_COMPOSE" -f $DOCKER_COMPOSE_FILE run frontend npm test'
                     echo 'Running Tests...'
                 }
             }
@@ -41,9 +36,8 @@ pipeline {
         stage('Start Containers') {
             steps {
                 script {
-                    // Start the containers (detached mode)
                     echo 'Starting Containers...'
-                    sh '"$DOCKER_COMPOSE" -f $DOCKER_COMPOSE_FILE up -d'
+                    sh 'docker-compose -f $DOCKER_COMPOSE_FILE up -d'
                 }
             }
         }
@@ -51,10 +45,8 @@ pipeline {
         stage('Verify Services') {
             steps {
                 script {
-                    // Verify the services are running (example: check if an endpoint is up)
                     echo 'Verifying Services...'
-                    // Add logic here to verify services, for example, by using curl or another check
-                    // sh 'curl http://localhost:YOUR_PORT/health'
+                    // Add verification steps here (e.g., curl to check service status)
                 }
             }
         }
@@ -62,12 +54,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Deploy your services if needed
                     echo 'Deploying Services...'
-                    // Example for pushing images or deploying to cloud services
-                    // sh 'docker push my_image'
-                    // or
-                    // sh 'kubectl apply -f deployment.yaml'
                 }
             }
         }
@@ -80,7 +67,6 @@ pipeline {
 
         failure {
             echo 'Pipeline failed. Check logs for errors.'
-            // You can also add cleanup steps here if needed
         }
     }
 }
