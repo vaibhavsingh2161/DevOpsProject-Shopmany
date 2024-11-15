@@ -1,19 +1,32 @@
 pipeline {
     agent any
-
+    
     environment {
-        // Define environment variables for docker-compose file location and binary
+        // Set Docker path explicitly in Jenkins environment
+        DOCKER_CLI_EXPERIMENTAL = 'enabled'
+        PATH = "/usr/local/bin:${env.PATH}"  // Add Docker path to PATH
         DOCKER_COMPOSE_FILE = 'docker-compose.yaml'
-        DOCKER_COMPOSE = "/usr/local/bin/docker-compose"  // Path to Docker Compose binary
-        PROJECT_DIR = '/Users/vaibhavsingh/Documents/MProjects/shopmany' // Project directory
+        DOCKER_COMPOSE = '/usr/local/bin/docker-compose'
+        PROJECT_DIR = '/Users/vaibhavsingh/Documents/MProjects/shopmany'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout SCM') {
             steps {
                 script {
                     echo "Checking out source code..."
                     checkout scm
+                }
+            }
+        }
+
+        stage('Check Jenkins Node Environment') {
+            steps {
+                script {
+                    echo "Checking Jenkins Node Environment..."
+                    // Check if Docker and Docker Compose are available
+                    sh 'docker --version'
+                    sh 'docker-compose --version'
                 }
             }
         }
