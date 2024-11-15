@@ -20,7 +20,9 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker images..."
-                    sh 'docker-compose -f $DOCKER_COMPOSE_FILE build --no-cache'  // Add --no-cache for a clean build
+                    dir('/Users/vaibhavsingh/Documents/MProjects/shopmany') {  // Navigate to project directory
+                        sh 'docker-compose -f $DOCKER_COMPOSE_FILE build --no-cache'  // Add --no-cache for a clean build
+                    }
                 }
             }
         }
@@ -37,7 +39,9 @@ pipeline {
             steps {
                 script {
                     echo 'Starting Containers...'
-                    sh 'docker-compose -f $DOCKER_COMPOSE_FILE up -d'
+                    dir('/Users/vaibhavsingh/Documents/MProjects/shopmany') {  // Navigate to project directory
+                        sh 'docker-compose -f $DOCKER_COMPOSE_FILE up -d'
+                    }
                 }
             }
         }
