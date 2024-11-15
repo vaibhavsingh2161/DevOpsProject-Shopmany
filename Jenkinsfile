@@ -2,13 +2,10 @@ pipeline {
     agent any
 
     environment {
-        // Set the Docker CLI experimental feature flag
         DOCKER_CLI_EXPERIMENTAL = 'enabled'
-
-        // Define environment variables for docker-compose file location and binary
         DOCKER_COMPOSE_FILE = 'docker-compose.yaml'
-        DOCKER_COMPOSE = '/usr/local/bin/docker-compose'  // Path to Docker Compose binary
-        PROJECT_DIR = '/Users/vaibhavsingh/Documents/MProjects/shopmany' // Project directory
+        DOCKER_COMPOSE = '/usr/local/bin/docker-compose'
+        PROJECT_DIR = '/Users/vaibhavsingh/Documents/MProjects/shopmany'
     }
 
     stages {
@@ -36,7 +33,7 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker images..."
-                    dir("${PROJECT_DIR}") {  // Navigate to project directory
+                    dir("${PROJECT_DIR}") {
                         try {
                             sh "${DOCKER_COMPOSE} -f ${DOCKER_COMPOSE_FILE} build --no-cache"
                         } catch (Exception e) {
@@ -107,7 +104,6 @@ pipeline {
                 script {
                     echo 'Deploying Services...'
                     // Add deployment steps here if applicable
-                    // Example: sh 'deploy.sh'
                 }
             }
         }
