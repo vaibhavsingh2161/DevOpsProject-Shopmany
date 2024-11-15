@@ -4,7 +4,7 @@ pipeline {
     environment {
         // Define environment variables for docker-compose file location and binary
         DOCKER_COMPOSE_FILE = 'docker-compose.yaml'
-        DOCKER_COMPOSE = "/usr/local/bin/docker-compose"  // Path to Docker Compose binary
+        DOCKER_COMPOSE = "/user/local/bin/docker-compose"  // Path to Docker Compose binary
         PROJECT_DIR = '/Users/vaibhavsingh/Documents/MProjects/shopmany' // Project directory
     }
 
